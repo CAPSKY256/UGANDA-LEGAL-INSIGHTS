@@ -33,11 +33,12 @@
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="topicsDropdown" role="button" data-bs-toggle="dropdown">Topics</a>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="property.html">Property Law</a></li>
-                            <li><a class="dropdown-item" href="banking.html">Banking Law</a></li>
-                            <li><a class="dropdown-item" href="constitutional.html">Constitutional Law</a></li>
-                            <li><a class="dropdown-item" href="contract.html">Contract Law</a></li>
+                            <li><a class="dropdown-item" href="land.html">Land Law</a></li>
+                            <li><a class="dropdown-item" href="civil-procedure.html">Civil Procedure</a></li>
                             <li><a class="dropdown-item" href="criminal.html">Criminal Law</a></li>
+                            <li><a class="dropdown-item" href="criminal-procedure.html">Criminal Procedure</a></li>
+                            <li><a class="dropdown-item" href="family.html">Family Law</a></li>
+                            <li><a class="dropdown-item" href="corporate-commercial.html">Corporate and Commercial Practice</a></li>
                         </ul>
                     </li>
                     <li class="nav-item"><a class="nav-link" href="settings.html">Settings</a></li>
@@ -117,11 +118,27 @@
         const caseDatabase = [
             {
                 title: "Bwambale Salveri v Uganda Muslim Supreme Council [2025]",
-                summary: "Land dispute case in Uganda. Issue: Joinder of parties. Holding: Joinder allowed under Ugandan property law. Compared to UK’s Land Registration Act 2002, which emphasizes registered titles."
+                summary: "Land dispute case in Uganda. Issue: Joinder of parties. Holding: Joinder allowed under Ugandan land law. Compared to UK’s Land Registration Act 2002, which emphasizes registered titles."
             },
             {
                 title: "Kato v Kato [2023]",
                 summary: "Contract dispute case in Uganda. Issue: Breach of contract. Holding: Plaintiff awarded damages. Similar to Australia’s contract law principles on breach."
+            },
+            {
+                title: "Nsubuga v Attorney General [2024]",
+                summary: "Civil procedure case in Uganda. Issue: Non-compliance with filing deadlines. Holding: Case dismissed for procedural irregularity. Compared to UK’s Civil Procedure Rules on strict compliance."
+            },
+            {
+                title: "R v Mukasa [2025]",
+                summary: "Criminal law case in Uganda. Issue: Intent in robbery case. Holding: Conviction upheld. Compared to UK’s Theft Act 1968."
+            },
+            {
+                title: "Nalongo v Nanyonga [2023]",
+                summary: "Family law case in Uganda. Issue: Custody dispute. Holding: Custody granted to mother. Compared to UK’s Children Act 1989."
+            },
+            {
+                title: "ABC Ltd v DEF Ltd [2024]",
+                summary: "Corporate case in Uganda. Issue: Breach of commercial contract. Holding: Damages awarded. Compared to India’s Companies Act 2013."
             }
         ];
 
@@ -141,8 +158,7 @@
             if (foundCase) {
                 resultContent.innerHTML = `<p><strong>${foundCase.title}</strong>: ${foundCase.summary}</p>`;
             } else {
-                // Simulated web search summary
-                resultContent.innerHTML = `<p><strong>${query}</strong>: Case not found locally. Web search simulation: This case may involve recent Ugandan law developments. For example, a hypothetical case could address property disputes, similar to UK’s Land Registration Act 2002. Please submit the case for further review.</p>`;
+                resultContent.innerHTML = `<p><strong>${query}</strong>: Case not found locally. Web search simulation: This case may involve recent Ugandan law developments. For example, a hypothetical case could address land disputes, similar to UK’s Land Registration Act 2002. Please submit the case for further review.</p>`;
             }
             resultsDiv.style.display = 'block';
         });
