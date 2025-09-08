@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -13,6 +12,11 @@
         .section { padding: 40px 20px; background: white; margin: 20px 0; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         footer { background: #1e3a8a; color: white; padding: 20px; }
         .btn-primary { background: #2563eb; border: none; }
+        .btn-primary:hover { background: #1e40af; }
+        .form-label { font-weight: 500; }
+        .preview-box { background: #f8f9fa; padding: 15px; border-radius: 5px; }
+        .invalid-feedback { display: none; }
+        .is-invalid ~ .invalid-feedback { display: block; }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 </head>
@@ -43,12 +47,51 @@
     </nav>
     <section class="section container">
         <h1>Settings</h1>
-        <h3>Theme</h3>
-        <button id="themeToggle" class="btn btn-primary mb-3">Switch to Dark Mode</button>
+        <div class="mb-4">
+            <label for="settingsSearch" class="form-label">Search Settings</label>
+            <input type="text" class="form-control" id="settingsSearch" placeholder="e.g., theme, font, notifications">
+            <small class="form-text text-muted">Search for settings or cases.</small>
+        </div>
+        <h3>Appearance</h3>
+        <div class="mb-3">
+            <label for="themeToggle" class="form-label">Theme</label>
+            <button id="themeToggle" class="btn btn-primary mb-2">Switch to Dark Mode</button>
+        </div>
+        <div class="mb-3">
+            <label for="fontSize" class="form-label">Font Size</label>
+            <select class="form-select" id="fontSize">
+                <option value="small">Small (14px)</option>
+                <option value="medium" selected>Medium (16px)</option>
+                <option value="large">Large (18px)</option>
+            </select>
+        </div>
+        <h3>Language</h3>
+        <div class="mb-3">
+            <label for="languageSelect" class="form-label">Language Preference</label>
+            <select class="form-select" id="languageSelect">
+                <option value="en" selected>English</option>
+                <option value="lg">Luganda</option>
+                <option value="sw">Swahili</option>
+            </select>
+            <small class="form-text text-muted">Language support coming soon.</small>
+        </div>
+        <h3>Notifications</h3>
+        <div class="mb-3">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="emailNotifications">
+                <label class="form-check-label" for="emailNotifications">Email Notifications</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="browserNotifications">
+                <label class="form-check-label" for="browserNotifications">Browser Notifications</label>
+            </div>
+            <small class="form-text text-muted">Manage notifications for new cases or updates (simulated).</small>
+        </div>
         <h3>Add New Case</h3>
         <div class="mb-3">
             <label for="caseTitle" class="form-label">Case Title</label>
             <input type="text" class="form-control" id="caseTitle" placeholder="e.g., Kato v Kato [2023]">
+            <div class="invalid-feedback">Please enter a case title.</div>
         </div>
         <div class="mb-3">
             <label for="caseTopic" class="form-label">Topic</label>
@@ -63,121 +106,94 @@
         <div class="mb-3">
             <label for="caseDetails" class="form-label">Details</label>
             <textarea class="form-control" id="caseDetails" rows="4" placeholder="Facts, Issue, Holding, Principle"></textarea>
+            <div class="invalid-feedback">Please enter case details.</div>
         </div>
-        <button onclick="alert('Case submitted! Edit HTML to add permanently.')" class="btn btn-primary">Submit Case</button>
+        <div class="mb-3 preview-box" id="casePreview" style="display: none;">
+            <h4>Case Preview</h4>
+            <p><strong id="previewTitle"></strong>: <span id="previewDetails"></span></p>
+        </div>
+        <button id="previewCase" class="btn btn-primary mb-2">Preview Case</button>
+        <button id="submitCase" class="btn btn-primary">Submit Case</button>
     </section>
     <footer class="text-center">
         <p>&copy; 2025 Uganda Legal Insights. Not legal advice.</p>
     </footer>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // Theme Toggle
         document.getElementById('themeToggle').addEventListener('click', () => {
             const body = document.body;
+            const sections = document.querySelectorAll('.section');
             const button = document.getElementById('themeToggle');
             if (body.style.background.includes('f4f6f9')) {
                 body.style.background = 'linear-gradient(to bottom, #1f2937, #111827)';
-                body.querySelectorAll('.section').forEach(s => s.style.background = '#374151');
+                sections.forEach(s => s.style.background = '#374151');
                 button.textContent = 'Switch to Light Mode';
             } else {
                 body.style.background = 'linear-gradient(to bottom, #f4f6f9, #e0e7ff)';
-                body.querySelectorAll('.section').forEach(s => s.style.background = 'white');
+                sections.forEach(s => s.style.background = 'white');
                 button.textContent = 'Switch to Dark Mode';
             }
+        });
+
+        // Font Size Adjustment
+        document.getElementById('fontSize').addEventListener('change', (e) => {
+            const size = e.target.value;
+            document.body.style.fontSize = size === 'small' ? '14px' : size === 'medium' ? '16px' : '18px';
+        });
+
+        // Settings Search (Basic Filtering)
+        document.getElementById('settingsSearch').addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            const sections = document.querySelectorAll('.section h3, .section label');
+            sections.forEach(section => {
+                const parent = section.closest('.mb-3') || section.nextElementSibling;
+                if (section.textContent.toLowerCase().includes(query)) {
+                    parent.style.display = 'block';
+                } else {
+                    parent.style.display = 'none';
+                }
+            });
+        });
+
+        // Case Submission with Validation and Preview
+        document.getElementById('previewCase').addEventListener('click', () => {
+            const title = document.getElementById('caseTitle');
+            const details = document.getElementById('caseDetails');
+            const previewBox = document.getElementById('casePreview');
+            const previewTitle = document.getElementById('previewTitle');
+            const previewDetails = document.getElementById('previewDetails');
+
+            title.classList.remove('is-invalid');
+            details.classList.remove('is-invalid');
+
+            if (!title.value.trim()) {
+                title.classList.add('is-invalid');
+                return;
+            }
+            if (!details.value.trim()) {
+                details.classList.add('is-invalid');
+                return;
+            }
+
+            previewTitle.textContent = title.value;
+            previewDetails.textContent = details.value;
+            previewBox.style.display = 'block';
+        });
+
+        document.getElementById('submitCase').addEventListener('click', () => {
+            const title = document.getElementById('caseTitle');
+            const details = document.getElementById('caseDetails');
+            if (!title.value.trim() || !details.value.trim()) {
+                title.classList.toggle('is-invalid', !title.value.trim());
+                details.classList.toggle('is-invalid', !details.value.trim());
+                return;
+            }
+            alert('Case submitted! Edit HTML to add permanently.');
+            title.value = '';
+            details.value = '';
+            document.getElementById('casePreview').style.display = 'none';
         });
     </script>
 </body>
 </html>
-```
-4. **Commit**:
-   - Click **Commit new file**.
-   - Wait 1–2 minutes, then test at `https://capsky256.github.io/uganda-legal-insights/settings.html`.
-
-### Step 2: Add Settings Link to Navbar
-To include the **Settings** link in the navbar of all pages:
-1. **Edit Each File**:
-   - In `https://github.com/capsky256/uganda-legal-insights`, open `index.html`.
-   - Find the navbar `<ul class="navbar-nav ms-auto">`.
-   - Add this before `</ul>`:
-     ```html
-     <li class="nav-item"><a class="nav-link" href="settings.html">Settings</a></li>
-     ```
-   - Click **Commit changes**.
-2. **Repeat for Other Files**:
-   - Do the same for `property.html`, `banking.html`, `constitutional.html`, `contract.html`, `criminal.html`.
-   - If you’ve added `family.html`, include it here too.
-3. **Alternative: Update Navbar Fully**:
-   - Replace the entire `<nav>` section in each file with this (matches vibrant layout and includes Settings):
-     ```html
-     <nav class="navbar navbar-expand-lg">
-         <div class="container-fluid">
-             <a class="navbar-brand" href="index.html">Uganda Legal Insights</a>
-             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                 <span class="navbar-toggler-icon"></span>
-             </button>
-             <div class="collapse navbar-collapse" id="navbarNav">
-                 <ul class="navbar-nav ms-auto">
-                     <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
-                     <li class="nav-item dropdown">
-                         <a class="nav-link dropdown-toggle" href="#" id="topicsDropdown" role="button" data-bs-toggle="dropdown">Topics</a>
-                         <ul class="dropdown-menu">
-                             <li><a class="dropdown-item" href="property.html">Property Law</a></li>
-                             <li><a class="dropdown-item" href="banking.html">Banking Law</a></li>
-                             <li><a class="dropdown-item" href="constitutional.html">Constitutional Law</a></li>
-                             <li><a class="dropdown-item" href="contract.html">Contract Law</a></li>
-                             <li><a class="dropdown-item" href="criminal.html">Criminal Law</a></li>
-                         </ul>
-                     </li>
-                     <li class="nav-item"><a class="nav-link" href="settings.html">Settings</a></li>
-                 </ul>
-             </div>
-         </div>
-     </nav>
-     ```
-   - Commit changes for each file.
-
-### Step 3: Test the Settings Menu
-1. **Check Site**:
-   - Visit `https://capsky256.github.io/uganda-legal-insights/`.
-   - Click **Settings** in the navbar (should load `settings.html`).
-   - Test:
-     - **Theme Toggle**: Click “Switch to Dark Mode” to change the background.
-     - **Add Case Form**: Enter a case title, topic, and details, then click Submit (shows an alert).
-     - **Mobile View**: Ensure the navbar collapses into a hamburger menu on mobile.
-2. **Fix Issues**:
-   - **404 Error**: Ensure `settings.html` is in the root folder.
-   - **Link Not Working**: Check `href="settings.html"` matches the file name exactly.
-   - **No Styles**: Verify internet connection for Bootstrap/Google Fonts CDNs.
-   - Clear cache (Ctrl+Shift+R) if needed.
-
-### Step 4: Manage and Add Materials
-Since `settings.html` includes a form to simulate adding cases, you can use it to plan content, but updates require editing HTML:
-1. **Add Cases via Settings**:
-   - Use the form to draft cases, then manually add them to the relevant page (e.g., `property.html`).
-   - Example: Add a case to `property.html`:
-     - Open `property.html` in GitHub.
-     - Find `<ul>` under Digested Cases, add:
-       ```html
-       <li><strong>New Case [2025]</strong>: Facts: Description. Issue: Legal issue. Holding: Decision. Principle: Key takeaway.<sup>[x]</sup></li>
-       ```
-     - Update `<ol>` under References with the source.
-     - Commit changes.
-2. **Add Family Law** (if desired):
-   - Create `family.html` as shown in my previous response.
-   - Update navbar in all files to include:
-     ```html
-     <li><a class="dropdown-item" href="family.html">Family Law</a></li>
-     ```
-   - Commit and test.
-
-### Step 5: Next Steps
-1. **Confirm Settings Menu**:
-   - Does the Settings link and page work? Any issues (e.g., “form not showing” or “theme toggle fails”)?
-2. **Add Materials**:
-   - Want more cases or topics (e.g., Tax Law)? Specify what to include.
-3. **Monetize**:
-   - Apply for Google AdSense for ad revenue.
-   - Use the site on Upwork for freelance legal writing ($500–$2,000/project).
-4. **Custom Domain**:
-   - Want `ugandalegalinsights.com`? I can guide you to set it up.
-
-Let me know if the Settings menu works, what materials to add, or any specific issues (e.g., “Settings link broken” or “page not mobile-friendly”)! If `capsky256/uganda-legal-insights` is public, I can check for errors.
